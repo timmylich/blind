@@ -1,25 +1,34 @@
 /*
-- Чёрный экран для скриншот-ситуаций.
-- Автор: timmylich.
-- ВКонтакте - @timmylich, TG - @timmylich.
-- Кто спиздит себе - тот пидор и за тем уже выехали.
+ - This module adds the `/blind` command to the server along with its aliases `/bs`, `/black`, `/blackscreen`.
+ - When the command is executed, the player's screen turns black for a specified duration.
+ - This is useful for roleplay players to cut text from the chat and create screenshot situations.
 
-- Данный модуль работает по принципу "подключил и забыл".
-- То есть для его работы достаточно будет просто подключить его как include после основных включений.
-- Для работы необходим командный процессора Pawn.CMD, адаптируйте скрипт под свой командный процессор, если у вас он другой.
-- Вы можете изменить настройки скрипта с помощью define'ов.
-- Не забудьте добавить команду /blind(/bs, /black, /blackscreen) в список команд в помощи вашего сервера.
+ - This include works on a Plug and Play principle.
+ - In other words, to make it work, you just need to include it as an include right after the main includes (a_samp or open.mp and Pawn.CMD).
+ - You can customize the script’s settings using a set of defines.
+ - Pawn.CMD must be enabled to work, but you can adapt the module for other command processors.
 
-- Версия: 1.0.
-- Дата обновления: 12.04.2024.
-- https://github.com/timmylich/blind
+ - Version: 1.1.
+ - Date: 08.10.2024.
+ - GitHub Repo: https://github.com/timmylich/blind
+
+ - Connect with author:
+ - VKontake: https://vk.com/timmylich
+ - Telegram: https://t.me/timmylich
 */
+
 
 #include <Pawn.CMD>
 
 
-#if !defined blind_Time // Время чёрного экрана
-	#define blind_Time 3000 
+/*
+[EN] The duration of the black screen.
+ - `%0` defines the player ID, allowing you to extract a custom duration set by the player if necessary.
+[RU] Время, на которое появляется чёрный экран.
+ - `%0` - определяет ID игрока, с помощью которого в случае надобности вы можете извлечь индивидуальное время срабатывания, установленное игроком.
+*/
+#if !defined blind_Time
+	#define blind_Time(%0) 3000 
 #endif
 
 
@@ -27,6 +36,7 @@ static BlindTimer[MAX_PLAYERS];
 static Text:BlindTD;
 
 
+// OnPlayerConnect hook
 public OnPlayerConnect(playerid)
 {
 	BlindTimer[playerid] = -1;
@@ -48,6 +58,7 @@ public OnPlayerConnect(playerid)
 #endif
 
 
+// OnGameModeInit hook
 public OnGameModeInit()
 {
 	BlindTD = TextDrawCreate(0.000000, 0.000000, "|");
@@ -79,7 +90,7 @@ public OnGameModeInit()
 	forward blind_OnGameModeInit();
 #endif
 
-
+// Pawn.CMD
 CMD:blind(playerid)
 {
 	if(BlindTimer[playerid] != -1)
@@ -87,7 +98,7 @@ CMD:blind(playerid)
 		BlindTimer[playerid] = -1;
 		return TextDrawHideForPlayer(playerid, BlindTD);
 	}
-	BlindTimer[playerid] = SetTimerEx(!"HideBlackScreenTD", blind_Time, false, !"i", playerid);
+	BlindTimer[playerid] = SetTimerEx(!"HideBlackScreenTD", blind_Time(playerid), false, !"i", playerid);
 	return TextDrawShowForPlayer(playerid, BlindTD);
 }
 forward pc_alias_blind();
